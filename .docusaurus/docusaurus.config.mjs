@@ -6,7 +6,7 @@
 export default {
   "title": "Learning Agentic AI from Zero to Hero",
   "tagline": "The Art of the Agent",
-  "url": "https://your-docusaurus-test-site.com",
+  "url": "https://vercel.com/muhammad-saqibs-projects-efa2e33e/agentic_ai_from_zero_to_hero",
   "baseUrl": "/",
   "onBrokenLinks": "throw",
   "favicon": "img/favicon.ico",
