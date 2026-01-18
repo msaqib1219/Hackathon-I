@@ -1,6 +1,12 @@
+# The Art of the Agent: Engineering Autonomy from First Principles
+
+> **GitHub Description**: A 12-week curriculum on engineering Agentic AI from first principles. Learn to build autonomous systems that reason, act, use tools, and collaborate using patterns like ReAct, RAG, and Multi-Agent Orchestration.
+>
+> **Topics**: `agentic-ai`, `autonomous-agents`, `llm`, `generative-ai`, `rag`, `react-pattern`, `multi-agent-systems`, `software-architecture`, `docusaurus`, `education`
+
 Book Title: The Art of the Agent
 Subtitle: Engineering Autonomy from First Principles
-Authors: D. Knuth, B. Kernighan, D. Ritchie, & M. Fowler
+Authors: Muhammad Saqib
 
 Book Description
 In the early days of computing, we wrote programs to follow explicit instructions: if this, then that. Today, we stand at a new frontier where we provide the goal, and the machine determines the path. This is Agentic AI.
