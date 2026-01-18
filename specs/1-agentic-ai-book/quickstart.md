@@ -1,26 +1,31 @@
-# Quickstart: Agentic AI Book Docusaurus Site
+# Quickstart: Agentic AI Book
+
+## Prerequisites
+- Node.js (v18 or higher)
+- npm or yarn
 
 ## Setup
 
-1. Ensure Node.js 20+: `node --version`
-2. Initialize Docusaurus: `npx create-docusaurus@latest . classic`
-3. Install math support: `npm i remark-math rehype-katex`
-4. Update `docusaurus.config.js` plugins:
+1. **Install Dependencies**
+   ```bash
+   npm install
    ```
-   plugins: [
-     require.resolve('remark-math'),
-     require.resolve('rehype-katex'),
-   ],
+   (Note: `remark-math` and `rehype-katex` are required alongside standard Docusaurus deps)
+
+2. **Start Development Server**
+   ```bash
+   npm run start
    ```
-5. Create docs files: intro.md + week-01-agent-anatomy.md to week-12-capstone-project.md
-6. Configure sidebars.js with phases
-7. Dev server: `npm run docusaurus start`
-8. Build: `npm run build`
-9. Deploy: `npm run deploy` (GitHub Pages)
+   Access the site at `http://localhost:3000`.
 
-## Validation
+3. **Build Static Site**
+   ```bash
+   npm run build
+   ```
+   Output will be in `build/` directory.
 
-- Build succeeds (SC-001)
-- Sidebar phases/13 pages (SC-002)
-- Search works (SC-004)
-- No YouTube, LaTeX renders
+## Contributing Content
+
+1. Edit files in `docs/`.
+2. Ensure you follow the frontmatter schema defined in `specs/1-agentic-ai-book/data-model.md`.
+3. If adding math, use standard LaTeX block syntax: `$$ E = mc^2 $$`.

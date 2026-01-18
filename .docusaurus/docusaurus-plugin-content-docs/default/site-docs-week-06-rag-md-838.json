@@ -1,0 +1,29 @@
+{
+  "id": "week-06-rag",
+  "title": "Week 6: External Knowledge (RAG)",
+  "description": "Giving your agent a library: Retrieval Augmented Generation.",
+  "source": "@site/docs/week-06-rag.md",
+  "sourceDirName": ".",
+  "slug": "/week-06-rag",
+  "permalink": "/docs/week-06-rag",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 6,
+  "frontMatter": {
+    "sidebar_label": "Week 6: RAG",
+    "sidebar_position": 6,
+    "title": "Week 6: External Knowledge (RAG)",
+    "description": "Giving your agent a library: Retrieval Augmented Generation."
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Week 5: ReAct",
+    "permalink": "/docs/week-05-react"
+  },
+  "next": {
+    "title": "Week 7: Planning",
+    "permalink": "/docs/week-07-planning"
+  }
+}

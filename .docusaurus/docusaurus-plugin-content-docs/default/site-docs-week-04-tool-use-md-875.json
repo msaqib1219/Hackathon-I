@@ -1,0 +1,29 @@
+{
+  "id": "week-04-tool-use",
+  "title": "Week 4: Tool Use (Function Calling)",
+  "description": "How an agent decides to use a calculator or a search engine.",
+  "source": "@site/docs/week-04-tool-use.md",
+  "sourceDirName": ".",
+  "slug": "/week-04-tool-use",
+  "permalink": "/docs/week-04-tool-use",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 4,
+  "frontMatter": {
+    "sidebar_label": "Week 4: Tool Use",
+    "sidebar_position": 4,
+    "title": "Week 4: Tool Use (Function Calling)",
+    "description": "How an agent decides to use a calculator or a search engine."
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Week 3: Reasoning",
+    "permalink": "/docs/week-03-reasoning"
+  },
+  "next": {
+    "title": "Week 5: ReAct",
+    "permalink": "/docs/week-05-react"
+  }
+}

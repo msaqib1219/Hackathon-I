@@ -1,0 +1,117 @@
+{
+  "/__docusaurus/debug-5ff": {
+    "__comp": "__comp---theme-debug-config-23-a-2ff",
+    "__context": {
+      "plugin": "plugin---docusaurus-debugb-38-ad3"
+    }
+  },
+  "/__docusaurus/debug/config-5ba": {
+    "__comp": "__comp---theme-debug-config-23-a-2ff",
+    "__context": {
+      "plugin": "plugin---docusaurus-debugb-38-ad3"
+    }
+  },
+  "/__docusaurus/debug/content-a2b": {
+    "__comp": "__comp---theme-debug-contentba-8-ce7",
+    "__context": {
+      "plugin": "plugin---docusaurus-debugb-38-ad3"
+    },
+    "__props": "__props---docusaurus-debug-content-3-c-0-be2"
+  },
+  "/__docusaurus/debug/globalData-c3c": {
+    "__comp": "__comp---theme-debug-global-dataede-0fa",
+    "__context": {
+      "plugin": "plugin---docusaurus-debugb-38-ad3"
+    }
+  },
+  "/__docusaurus/debug/metadata-156": {
+    "__comp": "__comp---theme-debug-site-metadata-68-e-3d4",
+    "__context": {
+      "plugin": "plugin---docusaurus-debugb-38-ad3"
+    }
+  },
+  "/__docusaurus/debug/registry-88c": {
+    "__comp": "__comp---theme-debug-registry-679-501",
+    "__context": {
+      "plugin": "plugin---docusaurus-debugb-38-ad3"
+    }
+  },
+  "/__docusaurus/debug/routes-000": {
+    "__comp": "__comp---theme-debug-routes-946-699",
+    "__context": {
+      "plugin": "plugin---docusaurus-debugb-38-ad3"
+    }
+  },
+  "/docs-dd0": {
+    "__comp": "__comp---theme-docs-root-5-e-9-0b6",
+    "__context": {
+      "plugin": "plugin---docsaba-d7c"
+    }
+  },
+  "/docs-6b5": {
+    "__comp": "__comp---theme-doc-version-roota-7-b-5de",
+    "__props": "__props---docs-005-788"
+  },
+  "/docs-07a": {
+    "__comp": "__comp---theme-doc-roota-94-67a"
+  },
+  "/docs/intro-61d": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-intro-0-e-3-be1"
+  },
+  "/docs/week-01-anatomy-21b": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-week-01-anatomya-5-d-884"
+  },
+  "/docs/week-02-language-3c4": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-week-02-language-29-b-8a9"
+  },
+  "/docs/week-03-reasoning-563": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-week-03-reasoninga-7-d-248"
+  },
+  "/docs/week-04-tool-use-f83": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-week-04-tool-use-875-03a"
+  },
+  "/docs/week-05-react-4db": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-week-05-reactd-5-b-2d5"
+  },
+  "/docs/week-06-rag-972": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-week-06-rag-838-264"
+  },
+  "/docs/week-07-planning-ec0": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-week-07-planning-8-e-8-47e"
+  },
+  "/docs/week-08-memory-f2b": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-week-08-memory-099-18f"
+  },
+  "/docs/week-09-orchestration-2be": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-week-09-orchestration-61-e-0e1"
+  },
+  "/docs/week-10-errors-ef5": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-week-10-errors-7-c-8-8c2"
+  },
+  "/docs/week-11-ethics-dc4": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-week-11-ethicsc-97-75c"
+  },
+  "/docs/week-12-capstone-129": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-week-12-capstone-0-a-7-e12"
+  },
+  "/-2e1": {
+    "__comp": "__comp---site-src-pages-index-jsc-4-f-f99",
+    "__context": {
+      "plugin": "plugin---a-74-9d6"
+    },
+    "config": "config---5-e-9-4f3"
+  }
+}

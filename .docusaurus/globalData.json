@@ -1,0 +1,93 @@
+{
+  "docusaurus-plugin-content-docs": {
+    "default": {
+      "path": "/docs",
+      "versions": [
+        {
+          "name": "current",
+          "label": "Next",
+          "isLast": true,
+          "path": "/docs",
+          "mainDocId": "intro",
+          "docs": [
+            {
+              "id": "intro",
+              "path": "/docs/intro",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "week-01-anatomy",
+              "path": "/docs/week-01-anatomy",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "week-02-language",
+              "path": "/docs/week-02-language",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "week-03-reasoning",
+              "path": "/docs/week-03-reasoning",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "week-04-tool-use",
+              "path": "/docs/week-04-tool-use",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "week-05-react",
+              "path": "/docs/week-05-react",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "week-06-rag",
+              "path": "/docs/week-06-rag",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "week-07-planning",
+              "path": "/docs/week-07-planning",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "week-08-memory",
+              "path": "/docs/week-08-memory",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "week-09-orchestration",
+              "path": "/docs/week-09-orchestration",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "week-10-errors",
+              "path": "/docs/week-10-errors",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "week-11-ethics",
+              "path": "/docs/week-11-ethics",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "week-12-capstone",
+              "path": "/docs/week-12-capstone",
+              "sidebar": "tutorialSidebar"
+            }
+          ],
+          "draftIds": [],
+          "sidebars": {
+            "tutorialSidebar": {
+              "link": {
+                "path": "/docs/intro",
+                "label": "intro"
+              }
+            }
+          }
+        }
+      ],
+      "breadcrumbs": true
+    }
+  }
+}

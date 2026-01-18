@@ -6,9 +6,9 @@ const sidebars = {
       type: 'category',
       label: 'Phase I: The Engine',
       items: [
-        'week-01-agent-anatomy',
-        'week-02-structured-prompts',
-        'week-03-chain-of-thought',
+        'week-01-anatomy',
+        'week-02-language',
+        'week-03-reasoning',
       ],
     },
     {
@@ -16,7 +16,7 @@ const sidebars = {
       label: 'Phase II: The Tools',
       items: [
         'week-04-tool-use',
-        'week-05-react-framework',
+        'week-05-react',
         'week-06-rag',
       ],
     },
@@ -24,18 +24,18 @@ const sidebars = {
       type: 'category',
       label: 'Phase III: The Architecture',
       items: [
-        'week-07-planning-decomposition',
-        'week-08-memory-systems',
-        'week-09-multi-agent-orchestration',
+        'week-07-planning',
+        'week-08-memory',
+        'week-09-orchestration',
       ],
     },
     {
       type: 'category',
       label: 'Phase IV: The Deployment',
       items: [
-        'week-10-error-handling',
-        'week-11-ethics-safety',
-        'week-12-capstone-project',
+        'week-10-errors',
+        'week-11-ethics',
+        'week-12-capstone',
       ],
     },
   ],

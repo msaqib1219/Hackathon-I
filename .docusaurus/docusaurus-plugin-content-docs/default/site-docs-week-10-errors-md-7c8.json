@@ -1,0 +1,29 @@
+{
+  "id": "week-10-errors",
+  "title": "Week 10: Error Handling and Hallucination Management",
+  "description": "What to do when the agent gets lost.",
+  "source": "@site/docs/week-10-errors.md",
+  "sourceDirName": ".",
+  "slug": "/week-10-errors",
+  "permalink": "/docs/week-10-errors",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 10,
+  "frontMatter": {
+    "sidebar_label": "Week 10: Errors",
+    "sidebar_position": 10,
+    "title": "Week 10: Error Handling and Hallucination Management",
+    "description": "What to do when the agent gets lost."
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Week 9: Orchestration",
+    "permalink": "/docs/week-09-orchestration"
+  },
+  "next": {
+    "title": "Week 11: Ethics",
+    "permalink": "/docs/week-11-ethics"
+  }
+}

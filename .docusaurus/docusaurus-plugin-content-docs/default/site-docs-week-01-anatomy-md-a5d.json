@@ -1,0 +1,29 @@
+{
+  "id": "week-01-anatomy",
+  "title": "Week 1: The Anatomy of an Agent",
+  "description": "What makes an AI 'Agentic'? Reasoning + Action + Observation.",
+  "source": "@site/docs/week-01-anatomy.md",
+  "sourceDirName": ".",
+  "slug": "/week-01-anatomy",
+  "permalink": "/docs/week-01-anatomy",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 1,
+  "frontMatter": {
+    "sidebar_label": "Week 1: Anatomy",
+    "sidebar_position": 1,
+    "title": "Week 1: The Anatomy of an Agent",
+    "description": "What makes an AI 'Agentic'? Reasoning + Action + Observation."
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Introduction",
+    "permalink": "/docs/intro"
+  },
+  "next": {
+    "title": "Week 2: Language",
+    "permalink": "/docs/week-02-language"
+  }
+}

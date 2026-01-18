@@ -1,0 +1,25 @@
+{
+  "id": "week-12-capstone",
+  "title": "Week 12: Building the Capstone",
+  "description": "Synthesizing all concepts into a personal 'Autonomous Assistant'.",
+  "source": "@site/docs/week-12-capstone.md",
+  "sourceDirName": ".",
+  "slug": "/week-12-capstone",
+  "permalink": "/docs/week-12-capstone",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 12,
+  "frontMatter": {
+    "sidebar_label": "Week 12: Capstone",
+    "sidebar_position": 12,
+    "title": "Week 12: Building the Capstone",
+    "description": "Synthesizing all concepts into a personal 'Autonomous Assistant'."
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Week 11: Ethics",
+    "permalink": "/docs/week-11-ethics"
+  }
+}

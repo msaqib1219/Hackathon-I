@@ -1,50 +1,65 @@
 /** @type {import('@docusaurus/types').Config} */
-const config = {
-  title: 'Learning Agentic AI from Zero to Hero',
-  tagline: 'Agentic AI for non-technical users',
-  url: 'https://your-docusaurus-test-site.com',
-  baseUrl: '/',
-  onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'warn',
-  favicon: 'img/favicon.ico',
-  organizationName: 'pi-aic', // Usually your GitHub org/user name.
-  projectName: 'hackathon-i', // Usually your repo name.
+module.exports = async function createConfig() {
+  const remarkMath = (await import('remark-math')).default;
+  const rehypeKatex = (await import('rehype-katex')).default;
 
-  presets: [
-    [
-      'classic',
-      /** @type {import('@docusaurus/preset-classic').Options} */
+  return {
+    title: 'Learning Agentic AI from Zero to Hero',
+    tagline: 'The Art of the Agent',
+    url: 'https://your-docusaurus-test-site.com',
+    baseUrl: '/',
+    onBrokenLinks: 'throw',
+    onBrokenMarkdownLinks: 'warn',
+    favicon: 'img/favicon.ico',
+    organizationName: 'pi-aic',
+    projectName: '1-agentic-ai-book',
+
+    // LaTeX Math Stylesheet
+    stylesheets: [
+      {
+        href: 'https://cdn.jsdelivr.net/npm/katex@0.13.24/dist/katex.min.css',
+        type: 'text/css',
+        integrity: 'sha384-odtC+0UGzzFL/6QkHlJt8K8fpk0+7MY2e9NC0xlupkac90s3TDBdrh9cI1q7F6L5',
+        crossorigin: 'anonymous',
+      },
+    ],
+
+    presets: [
+      [
+        'classic',
+        /** @type {import('@docusaurus/preset-classic').Options} */
+        ({
+          docs: {
+            sidebarPath: require.resolve('./sidebars.js'),
+            remarkPlugins: [remarkMath],
+            rehypePlugins: [rehypeKatex],
+          },
+          theme: {
+            customCss: require.resolve('./src/css/custom.css'),
+          },
+          blog: false,
+        }),
+      ],
+    ],
+
+    themeConfig:
+      /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
       ({
-        docs: {
-          sidebarPath: require.resolve('./sidebars.js'),
-          // Please change this to your repo.
-          editUrl: 'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
+        navbar: {
+          title: 'Agentic AI Book',
+          items: [
+            {
+              type: 'doc',
+              docId: 'intro',
+              position: 'left',
+              label: 'Read the Book',
+            },
+          ],
         },
-        theme: {
-          customCss: require.resolve('./src/css/custom.css'),
+        footer: {
+          style: 'dark',
+          copyright: `Copyright © ${new Date().getFullYear()} Agentic AI Book. Built with Docusaurus.`,
         },
       }),
-    ],
-  ],
-  plugins: [
-    require.resolve('remark-math'),
-    require.resolve('rehype-katex'),
-  ],
-  themeConfig:
-    /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
-    ({
-      navbar: {
-        title: 'Agentic AI Book',
-        items: [
-          {
-            type: 'doc',
-            docId: 'intro',
-            position: 'left',
-            label: 'Tutorial',
-          },
-        ],
-      },
-    }),
+  };
 };
-
-module.exports = config;

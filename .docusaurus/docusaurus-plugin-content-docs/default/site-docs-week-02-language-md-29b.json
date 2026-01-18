@@ -1,0 +1,29 @@
+{
+  "id": "week-02-language",
+  "title": "Week 2: The Power of Language (Structured Input)",
+  "description": "Writing as a form of programming.",
+  "source": "@site/docs/week-02-language.md",
+  "sourceDirName": ".",
+  "slug": "/week-02-language",
+  "permalink": "/docs/week-02-language",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 2,
+  "frontMatter": {
+    "sidebar_label": "Week 2: Language",
+    "sidebar_position": 2,
+    "title": "Week 2: The Power of Language (Structured Input)",
+    "description": "Writing as a form of programming."
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Week 1: Anatomy",
+    "permalink": "/docs/week-01-anatomy"
+  },
+  "next": {
+    "title": "Week 3: Reasoning",
+    "permalink": "/docs/week-03-reasoning"
+  }
+}

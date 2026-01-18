@@ -1,94 +1,66 @@
-# Implementation Plan: Agentic AI Book Docusaurus Site
+# Implementation Plan: Agentic AI Book
 
-**Branch**: `1-agentic-ai-book` | **Date**: 2026-01-18 | **Spec**: [spec.md](spec.md)
-
+**Branch**: `1-agentic-ai-book` | **Date**: 2026-01-18 | **Spec**: [specs/1-agentic-ai-book/spec.md](./spec.md)
 **Input**: Feature specification from `/specs/1-agentic-ai-book/spec.md`
 
 ## Summary
 
-Primary requirement: Create Docusaurus static site with 13 docs pages (intro + 12 weeks from Readme.md curriculum), phased sidebar navigation, enforcing content principles (Why before How, no YouTube, LaTeX math, systems thinking). Technical approach: Standard Docusaurus v3 classic template, MDX for content, built-in search/sidebar.
+Build a static documentation site using Docusaurus 3 to host "The Art of the Agent". The site will feature a strict 12-week curriculum structure, organized into 4 phases, and support LaTeX for mathematical content.
 
 ## Technical Context
 
-**Language/Version**: JavaScript (Node.js 20+), React 18
-**Primary Dependencies**: Docusaurus v3 (@docusaurus/core, @docusaurus/preset-classic)
-**Storage**: N/A (static site, Markdown files)
-**Testing**: Manual content validation, Docusaurus build checks, accessibility lint (no automated unit tests needed for docs)
-**Target Platform**: Static hosting (Vercel/Netlify/GitHub Pages), modern browsers
-**Project Type**: Static documentation site
-**Performance Goals**: Instant page loads (<2s), full-text search <1s
-**Constraints**: No external video embeds, LaTeX via remark-math/rehype-katex
-**Scale/Scope**: 13 pages, ~50KB total content
+**Language/Version**: Node.js 18+ (Docusaurus requirement)
+**Primary Dependencies**: Docusaurus 3 (classic preset), `remark-math`, `rehype-katex`
+**Storage**: Static files (Markdown in `docs/`)
+**Testing**: Build verification (`npm run build`)
+**Target Platform**: Static Website (HTML/CSS/JS)
+**Project Type**: Web application (Static Site Generator)
+**Performance Goals**: Fast load times, SEO friendly (standard Docusaurus benefits)
+**Constraints**: Must strictly follow 12-week structure; No YouTube embeds; LaTeX support required.
+**Scale/Scope**: ~15 pages of content.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-Constitution template unfilled - no violations. Principles N/A. Proceed.
+- **Library-First**: N/A (Project is a site, not a library)
+- **Review**: Plan uses standard tooling.
+- **Simplicity**: Using standard Docusaurus scaffolding + plugins.
 
 ## Project Structure
 
 ### Documentation (this feature)
 
-```
+```text
 specs/1-agentic-ai-book/
-├── plan.md              # This file (/sp.plan command output)
-├── research.md          # N/A - no research needed
-├── data-model.md        # N/A - no data entities
-├── quickstart.md        # Phase 1 output
-├── contracts/           # N/A - no APIs
-└── tasks.md             # Phase 2 output (/sp.tasks command - NOT created by /sp.plan)
+├── plan.md              # This file
+├── research.md          # Technology decisions
+├── data-model.md        # Frontmatter schema
+├── quickstart.md        # Usage guide
+├── contracts/           # URL structure
+└── tasks.md             # Implementation tasks
 ```
 
 ### Source Code (repository root)
 
-```
-docs/
-├── intro.md
-├── week-01-agent-anatomy.md
-├── week-02-structured-prompts.md
-├── week-03-chain-of-thought.md
-├── week-04-tool-use.md
-├── week-05-react-framework.md
-├── week-06-rag.md
-├── week-07-planning-decomposition.md
-├── week-08-memory-systems.md
-├── week-09-multi-agent-orchestration.md
-├── week-10-error-handling.md
-├── week-11-ethics-safety.md
-└── week-12-capstone-project.md
-
-sidebars.js
-docusaurus.config.js
-package.json
+```text
+.
+├── docusaurus.config.js       # Main configuration (Math plugins here)
+├── sidebars.js                # Navigation structure (Phases)
+├── package.json               # Dependencies
+├── docs/                      # Weekly Content Content
+│   ├── intro.md
+│   ├── week-01-anatomy.md
+│   └── ... (weeks 02-12)
+├── src/
+│   └── pages/index.js         # Landing page
+└── static/                    # Images/assets
 ```
 
-**Structure Decision**: Root-level Docusaurus project with docs/ for content, sidebars.js for phased navigation.
+**Structure Decision**: Standard Docusaurus project root structure.
 
 ## Complexity Tracking
 
-N/A - Simple static site, no violations.
-
-## Phase 0: Research
-
-No NEEDS CLARIFICATION - spec clear. Docusaurus standard patterns apply.
-
-## Phase 1: Design & Contracts
-
-**data-model.md**: N/A
-
-**contracts/**: N/A
-
-**quickstart.md**:
-
-# Quickstart: Agentic AI Book Site
-
-1. `npx create-docusaurus@latest . classic`
-2. `npm i remark-math rehype-katex`
-3. Update `docusaurus.config.js`: plugins: [require.resolve('remark-math'), require.resolve('rehype-katex')]
-4. Create docs/ files per spec FR-002
-5. Configure sidebars.js per FR-003
-6. `npm run docusaurus start`
-7. Build: `npm run build`
-
-## Next: /sp.tasks
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| LaTeX Support | Required for math in book | Standard markdown insufficient for formulas |
