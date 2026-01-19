@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+openai
+qdrant-client
+python-dotenv
+asyncpg
+psycopg2-binary
+pydantic
+pydantic-settings
