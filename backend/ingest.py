@@ -2,15 +2,22 @@ import os
 import glob
 from typing import List
 from dotenv import load_dotenv
-from openai import OpenAI
+from google import genai
 from qdrant_client import QdrantClient
 from qdrant_client.models import PointStruct, VectorParams, Distance
 
-# Load environment variables
-load_dotenv()
+# Load environment variables FIRST (override=True to override system env vars)
+load_dotenv(override=True)
+
+# Configure Gemini AFTER loading .env
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+if not GEMINI_API_KEY:
+    raise ValueError("GEMINI_API_KEY environment variable not set")
+
+# Initialize the client with the new API
+client = genai.Client(api_key=GEMINI_API_KEY)
 
 # Initialize clients
-openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 qdrant_client = QdrantClient(
     url=os.getenv("QDRANT_URL"),
     api_key=os.getenv("QDRANT_API_KEY"),
@@ -19,11 +26,12 @@ qdrant_client = QdrantClient(
 COLLECTION_NAME = "agentic_ai_book"
 
 def get_embedding(text: str) -> List[float]:
-    response = openai_client.embeddings.create(
-        input=text,
-        model="text-embedding-3-small"
+    """Generate embedding using Gemini"""
+    result = client.models.embed_content(
+        model="models/text-embedding-004",
+        contents=text
     )
-    return response.data[0].embedding
+    return result.embeddings[0].values
 
 def chunk_text(text: str, chunk_size: int = 1000) -> List[str]:
     # Simple chunking for now, could be improved with tiktoken
@@ -39,8 +47,10 @@ def process_file(file_path: str):
 
     for i, chunk in enumerate(chunks):
         embedding = get_embedding(chunk)
+        # Use absolute value of hash to ensure positive ID
+        point_id = abs(hash(f"{filename}_{i}"))
         point = PointStruct(
-            id=hash(f"{filename}_{i}"),  # Simple deterministic ID
+            id=point_id,
             vector=embedding,
             payload={
                 "source": filename,
@@ -52,11 +62,24 @@ def process_file(file_path: str):
     return points
 
 def ingest_docs():
-    # Create collection if not exists
-    if not qdrant_client.collection_exists(COLLECTION_NAME):
+    # Create collection if not exists, or recreate if dimensions mismatch
+    if qdrant_client.collection_exists(COLLECTION_NAME):
+        # Check if we need to recreate due to dimension mismatch
+        collection_info = qdrant_client.get_collection(COLLECTION_NAME)
+        if collection_info.config.params.vectors.size != 768:
+            print(f"Deleting collection due to dimension mismatch (expected 768, got {collection_info.config.params.vectors.size})")
+            qdrant_client.delete_collection(COLLECTION_NAME)
+            qdrant_client.create_collection(
+                collection_name=COLLECTION_NAME,
+                vectors_config=VectorParams(size=768, distance=Distance.COSINE),  # Gemini text-embedding-004 is 768 dims
+            )
+            print(f"Recreated collection: {COLLECTION_NAME}")
+        else:
+            print(f"Collection {COLLECTION_NAME} already exists with correct dimensions")
+    else:
         qdrant_client.create_collection(
             collection_name=COLLECTION_NAME,
-            vectors_config=VectorParams(size=1536, distance=Distance.COSINE),
+            vectors_config=VectorParams(size=768, distance=Distance.COSINE),  # Gemini text-embedding-004 is 768 dims
         )
         print(f"Created collection: {COLLECTION_NAME}")
 

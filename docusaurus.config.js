@@ -9,10 +9,16 @@ module.exports = async function createConfig() {
     url: 'https://your-docusaurus-test-site.com',
     baseUrl: '/',
     onBrokenLinks: 'throw',
-    onBrokenMarkdownLinks: 'warn',
     favicon: 'img/favicon.ico',
     organizationName: 'pi-aic',
     projectName: '1-agentic-ai-book',
+
+    // Markdown configuration
+    markdown: {
+      hooks: {
+        onBrokenMarkdownLinks: 'warn',
+      },
+    },
 
     // LaTeX Math Stylesheet
     stylesheets: [

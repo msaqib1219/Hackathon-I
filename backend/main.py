@@ -4,16 +4,27 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
-from openai import OpenAI
+from google import genai
+from google.genai import types
+import json
+import re
 from qdrant_client import QdrantClient
 from contextlib import asynccontextmanager
 
 from database import init_db, add_message, get_history
 
-load_dotenv()
+# Load environment variables FIRST (override=True to override system env vars)
+load_dotenv(override=True)
+
+# Configure Gemini AFTER loading .env
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+if not GEMINI_API_KEY:
+    raise ValueError("GEMINI_API_KEY environment variable not set")
+
+# Initialize the client with the new API
+client = genai.Client(api_key=GEMINI_API_KEY)
 
 # Initialize clients
-openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 qdrant_client = QdrantClient(
     url=os.getenv("QDRANT_URL"),
     api_key=os.getenv("QDRANT_API_KEY"),
@@ -51,22 +62,31 @@ class ChatResponse(BaseModel):
     sources: List[str]
 
 def get_embedding(text: str) -> List[float]:
-    response = openai_client.embeddings.create(
-        input=text,
-        model="text-embedding-3-small"
+    """Generate embedding using Gemini"""
+    result = client.models.embed_content(
+        model="models/text-embedding-004",
+        contents=text
     )
-    return response.data[0].embedding
+    return result.embeddings[0].values
+
+
+def extract_json_from_response(text: str) -> str:
+    """Extract JSON from text response if present"""
+    # Remove markdown code blocks
+    text = re.sub(r'```json\n?', '', text)
+    text = re.sub(r'```\n?', '', text)
+    return text.strip()
 
 @app.post("/api/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
     try:
         # 1. Retrieve relevant context
         embedding = get_embedding(request.message)
-        search_result = qdrant_client.search(
+        search_result = qdrant_client.query_points(
             collection_name=COLLECTION_NAME,
-            query_vector=embedding,
+            query=embedding,
             limit=3
-        )
+        ).points
 
         context_text = "\n\n".join([hit.payload["text"] for hit in search_result])
         sources = list(set([hit.payload["source"] for hit in search_result]))
@@ -82,16 +102,40 @@ async def chat(request: ChatRequest):
 
         user_message = request.message
 
-        # 3. Call LLM
-        completion = openai_client.chat.completions.create(
-            model="gpt-4o",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_message}
-            ]
-        )
+        # 3. Call LLM using new google.genai API
+        try:
+            response = client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=f"{system_prompt}\n\nUser: {user_message}\n\nAssistant:",
+                config=types.GenerateContentConfig(
+                    temperature=0.3,
+                    max_output_tokens=2048,
+                    safety_settings=[
+                        types.SafetySetting(
+                            category="HARM_CATEGORY_DANGEROUS_CONTENT",
+                            threshold="BLOCK_ONLY_HIGH"
+                        ),
+                        types.SafetySetting(
+                            category="HARM_CATEGORY_HATE_SPEECH",
+                            threshold="BLOCK_ONLY_HIGH"
+                        ),
+                        types.SafetySetting(
+                            category="HARM_CATEGORY_HARASSMENT",
+                            threshold="BLOCK_ONLY_HIGH"
+                        ),
+                        types.SafetySetting(
+                            category="HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                            threshold="BLOCK_ONLY_HIGH"
+                        ),
+                    ]
+                )
+            )
 
-        response_text = completion.choices[0].message.content
+            response_text = response.text
+
+        except Exception as e:
+            print(f"Gemini API error: {e}")
+            raise HTTPException(status_code=500, detail=f"LLM error: {str(e)}")
 
         # 4. Save to history
         try:
