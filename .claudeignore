@@ -1,0 +1,41 @@
+# Dependency folders (Massive token sinks)
+node_modules/
+vendor/
+packages/*/node_modules/
+
+# Build outputs and artifacts
+dist/
+build/
+out/
+.next/
+.svelte-kit/
+target/
+
+# Version control and IDE files
+.git/
+.svn/
+.idea/
+.vscode/
+
+# Logs and temp files
+*.log
+tmp/
+temp/
+.cache/
+
+# Large assets (Claude can't read these anyway)
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.mp4
+*.pdf
+*.zip
+*.tar.gz
+
+# Lock files (Very long and rarely useful for logic)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+composer.lock
