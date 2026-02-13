@@ -28,3 +28,26 @@
   --ifm-color-primary-lightest: #4fddbf;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
+
+/* Navbar Sign In Button */
+.navbar-signin-link {
+  padding: 0.5rem 1rem !important;
+  border: 2px solid var(--ifm-color-primary) !important;
+  border-radius: 6px !important;
+  font-weight: 600 !important;
+  transition: all 0.2s !important;
+}
+
+.navbar-signin-link:hover {
+  background: var(--ifm-color-primary) !important;
+  color: white !important;
+}
+
+/* Card background for light/dark mode */
+:root {
+  --ifm-card-background-color: #ffffff;
+}
+
+[data-theme='dark'] {
+  --ifm-card-background-color: #242526;
+}

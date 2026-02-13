@@ -1,16 +1,33 @@
 import React, { useState, useEffect, useRef } from 'react';
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import './Chatbot.css';
 
-const API_URL = 'http://localhost:8000/api/chat';
+// Helper to get config values (used inside component)
+function useApiConfig() {
+  const { siteConfig } = useDocusaurusContext();
+  const { customFields } = siteConfig;
+  return {
+    apiUrl: customFields?.chatApiUrl || 'http://localhost:8000',
+    apiKey: customFields?.chatApiKey || '',
+  };
+}
 
 function generateSessionId() {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
     return crypto.randomUUID();
   }
-  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  // Cryptographically secure fallback
+  if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+    const array = new Uint8Array(16);
+    crypto.getRandomValues(array);
+    return Array.from(array, b => b.toString(16).padStart(2, '0')).join('');
+  }
+  // Last resort fallback (not cryptographically secure)
+  return Date.now().toString(36) + Math.random().toString(36).substring(2, 15);
 }
 
 export default function Chatbot() {
+  const { apiUrl, apiKey } = useApiConfig();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     { role: 'bot', content: 'Hi! I can answer questions about the Agentic AI Book. Ask me anything!' }
@@ -50,11 +67,18 @@ export default function Chatbot() {
     setIsLoading(true);
 
     try {
-      const response = await fetch(API_URL, {
+      const headers = {
+        'Content-Type': 'application/json',
+      };
+
+      // Add API key header if available
+      if (apiKey) {
+        headers['X-API-Key'] = apiKey;
+      }
+
+      const response = await fetch(`${apiUrl}/api/chat`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({
           message: userMessage,
           session_id: sessionId
@@ -62,6 +86,12 @@ export default function Chatbot() {
       });
 
       if (!response.ok) {
+        // Handle specific error cases
+        if (response.status === 401) {
+          throw new Error('Authentication failed. Please check your API key.');
+        } else if (response.status === 429) {
+          throw new Error('Rate limit exceeded. Please wait a moment before trying again.');
+        }
         throw new Error('Network response was not ok');
       }
 

@@ -28,7 +28,7 @@ COLLECTION_NAME = "agentic_ai_book"
 def get_embedding(text: str) -> List[float]:
     """Generate embedding using Gemini"""
     result = client.models.embed_content(
-        model="models/text-embedding-004",
+        model="models/gemini-embedding-001",
         contents=text
     )
     return result.embeddings[0].values
@@ -66,12 +66,12 @@ def ingest_docs():
     if qdrant_client.collection_exists(COLLECTION_NAME):
         # Check if we need to recreate due to dimension mismatch
         collection_info = qdrant_client.get_collection(COLLECTION_NAME)
-        if collection_info.config.params.vectors.size != 768:
-            print(f"Deleting collection due to dimension mismatch (expected 768, got {collection_info.config.params.vectors.size})")
+        if collection_info.config.params.vectors.size != 3072:
+            print(f"Deleting collection due to dimension mismatch (expected 3072, got {collection_info.config.params.vectors.size})")
             qdrant_client.delete_collection(COLLECTION_NAME)
             qdrant_client.create_collection(
                 collection_name=COLLECTION_NAME,
-                vectors_config=VectorParams(size=768, distance=Distance.COSINE),  # Gemini text-embedding-004 is 768 dims
+                vectors_config=VectorParams(size=3072, distance=Distance.COSINE),  # Gemini gemini-embedding-001 is 3072 dims
             )
             print(f"Recreated collection: {COLLECTION_NAME}")
         else:
@@ -79,7 +79,7 @@ def ingest_docs():
     else:
         qdrant_client.create_collection(
             collection_name=COLLECTION_NAME,
-            vectors_config=VectorParams(size=768, distance=Distance.COSINE),  # Gemini text-embedding-004 is 768 dims
+            vectors_config=VectorParams(size=3072, distance=Distance.COSINE),  # Gemini gemini-embedding-001 is 3072 dims
         )
         print(f"Created collection: {COLLECTION_NAME}")
 

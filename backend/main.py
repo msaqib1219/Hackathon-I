@@ -1,6 +1,6 @@
 import os
 from typing import List, Optional
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
@@ -12,6 +12,7 @@ from qdrant_client import QdrantClient
 from contextlib import asynccontextmanager
 
 from database import init_db, add_message, get_history
+from auth import verify_api_key, check_rate_limit, rate_limiter, get_client_identifier
 
 # Load environment variables FIRST (override=True to override system env vars)
 load_dotenv(override=True)
@@ -44,13 +45,16 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-# CORS configuration
+# CORS configuration - restrict origins for security
+# In production, replace with your actual frontend domain
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Adjust for production
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type", "X-API-Key", "Authorization"],
 )
 
 class ChatRequest(BaseModel):
@@ -64,7 +68,7 @@ class ChatResponse(BaseModel):
 def get_embedding(text: str) -> List[float]:
     """Generate embedding using Gemini"""
     result = client.models.embed_content(
-        model="models/text-embedding-004",
+        model="models/gemini-embedding-001",
         contents=text
     )
     return result.embeddings[0].values
@@ -77,11 +81,39 @@ def extract_json_from_response(text: str) -> str:
     text = re.sub(r'```\n?', '', text)
     return text.strip()
 
+@app.get("/api/health")
+async def health_check():
+    """Health check endpoint - no auth required."""
+    return {"status": "healthy", "service": "rag-chatbot"}
+
+
+@app.get("/api/rate-limit-status")
+async def rate_limit_status(request: Request, api_key: str = Depends(verify_api_key)):
+    """Check current rate limit status for the client."""
+    identifier = get_client_identifier(request)
+    remaining = rate_limiter.get_remaining(identifier)
+    return {
+        "identifier": identifier,
+        "limits": {
+            "per_minute": rate_limiter.requests_per_minute,
+            "per_hour": rate_limiter.requests_per_hour,
+        },
+        "remaining": remaining,
+    }
+
+
 @app.post("/api/chat", response_model=ChatResponse)
-async def chat(request: ChatRequest):
+async def chat(
+    request: Request,
+    chat_request: ChatRequest,
+    api_key: str = Depends(verify_api_key),
+):
+    # Apply rate limiting using session_id
+    await check_rate_limit(request, chat_request.session_id)
+
     try:
         # 1. Retrieve relevant context
-        embedding = get_embedding(request.message)
+        embedding = get_embedding(chat_request.message)
         search_result = qdrant_client.query_points(
             collection_name=COLLECTION_NAME,
             query=embedding,
@@ -100,7 +132,7 @@ async def chat(request: ChatRequest):
         {context_text}
         """
 
-        user_message = request.message
+        user_message = chat_request.message
 
         # 3. Call LLM using new google.genai API
         try:
@@ -134,19 +166,23 @@ async def chat(request: ChatRequest):
             response_text = response.text
 
         except Exception as e:
+            # Log full error server-side, return generic message to client
             print(f"Gemini API error: {e}")
-            raise HTTPException(status_code=500, detail=f"LLM error: {str(e)}")
+            raise HTTPException(status_code=500, detail="An error occurred processing your request")
 
         # 4. Save to history
         try:
-            await add_message(request.session_id, user_message, response_text)
+            await add_message(chat_request.session_id, user_message, response_text)
         except Exception as e:
             print(f"Warning: Failed to save to history: {e}")
 
         return ChatResponse(response=response_text, sources=sources)
 
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"Unexpected error in chat endpoint: {e}")
+        raise HTTPException(status_code=500, detail="An unexpected error occurred")
 
 if __name__ == "__main__":
     import uvicorn

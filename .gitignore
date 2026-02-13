@@ -40,5 +40,17 @@ yarn-error.log*
 
 #added by myself
 .claude/
-.env.exanomple
+.env.example
 .env.secret
+.env.local
+.env.*.local
+backend/.env.secret
+backend/.env.local
+
+# Python virtual environments
+.venv/
+venv/
+
+# Python cache
+*.pyc
+__pycache__/

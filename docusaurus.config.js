@@ -13,6 +13,13 @@ module.exports = async function createConfig() {
     organizationName: 'pi-aic',
     projectName: '1-agentic-ai-book',
 
+    // Custom fields for chatbot API
+    // API key must be set via environment variable - never hardcode secrets
+    customFields: {
+      chatApiKey: process.env.CHAT_API_KEY || '',
+      chatApiUrl: process.env.CHAT_API_URL || 'http://localhost:8000',
+    },
+
     // Markdown configuration
     markdown: {
       hooks: {
@@ -59,6 +66,10 @@ module.exports = async function createConfig() {
               docId: 'intro',
               position: 'left',
               label: 'Read the Book',
+            },
+            {
+              type: 'custom-signInButton',
+              position: 'right',
             },
           ],
         },
