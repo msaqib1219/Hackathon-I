@@ -1,12 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '@site/src/context/AuthContext';
 import styles from './styles.module.css';
 
-/**
- * WARNING: This is a DEMO authentication component.
- * It does NOT provide real security - any email/password works.
- * For production, replace with proper auth (Auth0, Firebase, NextAuth).
- */
 export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }) {
+  const { login, register, googleLogin } = useAuth();
   const [mode, setMode] = useState(initialMode);
   const [formData, setFormData] = useState({
     email: '',
@@ -17,11 +14,41 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }) {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
+  // Reset mode when initialMode prop changes
+  useEffect(() => {
+    setMode(initialMode);
+  }, [initialMode]);
+
   if (!isOpen) return null;
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setError('');
+  };
+
+  const validateForm = () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setError('Please enter a valid email address.');
+      return false;
+    }
+    if (formData.password.length < 8) {
+      setError('Password must be at least 8 characters.');
+      return false;
+    }
+    if (!/[a-zA-Z]/.test(formData.password)) {
+      setError('Password must contain at least one letter.');
+      return false;
+    }
+    if (!/[0-9]/.test(formData.password)) {
+      setError('Password must contain at least one number.');
+      return false;
+    }
+    if (mode === 'signup' && !formData.name.trim()) {
+      setError('Please enter your name.');
+      return false;
+    }
+    return true;
   };
 
   const handleSubmit = async (e) => {
@@ -30,35 +57,40 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }) {
     setError('');
     setSuccess('');
 
-    try {
-      // Simulate API call - replace with actual auth endpoint
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+    if (!validateForm()) {
+      setIsLoading(false);
+      return;
+    }
 
+    try {
       if (mode === 'signin') {
-        // For demo - in production, call your auth API
-        if (formData.email && formData.password) {
-          setSuccess('Signed in successfully! Redirecting...');
-          localStorage.setItem('user_email', formData.email);
-          setTimeout(() => {
-            onClose();
-            window.location.href = '/docs/intro';
-          }, 1500);
-        } else {
-          throw new Error('Please fill in all fields');
-        }
+        await login(formData.email, formData.password);
+        setSuccess('Signed in successfully! Redirecting...');
+        setTimeout(() => {
+          onClose();
+          window.location.href = '/docs/intro';
+        }, 1000);
       } else {
-        // Sign up
-        if (formData.email && formData.password && formData.name) {
-          setSuccess('Account created! Please check your email to verify.');
-          setTimeout(() => setMode('signin'), 2000);
-        } else {
-          throw new Error('Please fill in all fields');
-        }
+        await register(formData.name, formData.email, formData.password);
+        setSuccess('Account created! Redirecting...');
+        setTimeout(() => {
+          onClose();
+          window.location.href = '/docs/intro';
+        }, 1000);
       }
     } catch (err) {
       setError(err.message || 'An error occurred. Please try again.');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setError('');
+    try {
+      await googleLogin();
+    } catch (err) {
+      setError(err.message || 'Google sign-in failed. Please try again.');
     }
   };
 
@@ -128,7 +160,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }) {
               className={styles.input}
               placeholder="••••••••"
               required
-              minLength={6}
+              minLength={8}
             />
           </div>
 
@@ -150,7 +182,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }) {
           <span>or</span>
         </div>
 
-        <button className={styles.socialButton}>
+        <button className={styles.socialButton} onClick={handleGoogleLogin}>
           <svg viewBox="0 0 24 24" width="20" height="20">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
             <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>

@@ -1,31 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useAuth } from '@site/src/context/AuthContext';
 import AuthModal from '../AuthModal';
 import styles from './styles.module.css';
 
 export default function SignInButton() {
+  const { isAuthenticated, isLoading, user, logout } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userEmail, setUserEmail] = useState('');
 
-  useEffect(() => {
-    // Check if user is logged in
-    const email = localStorage.getItem('user_email');
-    if (email) {
-      setIsLoggedIn(true);
-      setUserEmail(email);
-    }
-  }, []);
-
-  const handleSignOut = () => {
-    localStorage.removeItem('user_email');
-    setIsLoggedIn(false);
-    setUserEmail('');
+  const handleSignOut = async () => {
+    await logout();
+    window.location.href = '/';
   };
 
-  if (isLoggedIn) {
+  if (isLoading) {
+    return null;
+  }
+
+  if (isAuthenticated && user) {
     return (
       <div className={styles.userMenu}>
-        <span className={styles.userEmail}>{userEmail.split('@')[0]}</span>
+        <span className={styles.userEmail}>{user.name || user.email.split('@')[0]}</span>
         <button onClick={handleSignOut} className={styles.signOutButton}>
           Sign Out
         </button>

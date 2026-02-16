@@ -12,7 +12,8 @@ from qdrant_client import QdrantClient
 from contextlib import asynccontextmanager
 
 from database import init_db, add_message, get_history
-from auth import verify_api_key, check_rate_limit, rate_limiter, get_client_identifier
+from auth import verify_api_key, verify_auth, check_rate_limit, rate_limiter, get_client_identifier
+from auth_routes import auth_router
 
 # Load environment variables FIRST (override=True to override system env vars)
 load_dotenv(override=True)
@@ -48,14 +49,20 @@ app = FastAPI(lifespan=lifespan)
 # CORS configuration - restrict origins for security
 # In production, replace with your actual frontend domain
 ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(",")
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
+if FRONTEND_URL not in ALLOWED_ORIGINS:
+    ALLOWED_ORIGINS.append(FRONTEND_URL)
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
-    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_methods=["GET", "POST", "OPTIONS", "DELETE"],
     allow_headers=["Content-Type", "X-API-Key", "Authorization"],
 )
+
+# Register auth routes
+app.include_router(auth_router)
 
 class ChatRequest(BaseModel):
     message: str
@@ -106,7 +113,7 @@ async def rate_limit_status(request: Request, api_key: str = Depends(verify_api_
 async def chat(
     request: Request,
     chat_request: ChatRequest,
-    api_key: str = Depends(verify_api_key),
+    auth_payload: dict = Depends(verify_auth),
 ):
     # Apply rate limiting using session_id
     await check_rate_limit(request, chat_request.session_id)
@@ -172,7 +179,8 @@ async def chat(
 
         # 4. Save to history
         try:
-            await add_message(chat_request.session_id, user_message, response_text)
+            user_id = auth_payload.get("sub")
+            await add_message(chat_request.session_id, user_message, response_text, user_id=user_id)
         except Exception as e:
             print(f"Warning: Failed to save to history: {e}")
 

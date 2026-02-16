@@ -1,0 +1,353 @@
+openapi: 3.1.0
+info:
+  title: Auth Hardening API
+  version: 1.0.0
+  description: Authentication endpoints for the Agentic AI Book platform
+
+servers:
+  - url: http://localhost:8000
+    description: Local development
+  - url: https://your-domain.com
+    description: Production
+
+paths:
+  /api/auth/register:
+    post:
+      operationId: registerUser
+      summary: Register a new user with email and password
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: User created successfully
+          headers:
+            Set-Cookie:
+              description: httpOnly refresh token cookie
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Validation error (weak password, invalid email)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Registration failed (generic — does not reveal if email exists)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/login:
+    post:
+      operationId: loginUser
+      summary: Authenticate with email and password
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          headers:
+            Set-Cookie:
+              description: httpOnly refresh token cookie
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Invalid email or password (generic message)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/refresh:
+    post:
+      operationId: refreshToken
+      summary: Refresh access token using refresh token cookie
+      tags: [Authentication]
+      description: |
+        Refresh token is sent automatically via httpOnly cookie.
+        Returns new access token and rotates refresh token.
+      parameters:
+        - in: cookie
+          name: refresh_token
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Token refreshed successfully
+          headers:
+            Set-Cookie:
+              description: New httpOnly refresh token cookie (rotation)
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshResponse'
+        '401':
+          description: Invalid or expired refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/logout:
+    post:
+      operationId: logoutUser
+      summary: Invalidate session and clear tokens
+      tags: [Authentication]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Logged out successfully
+          headers:
+            Set-Cookie:
+              description: Cleared refresh token cookie
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Logged out successfully"
+
+  /api/auth/me:
+    get:
+      operationId: getCurrentUser
+      summary: Get current authenticated user profile
+      tags: [Authentication]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Current user info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/google:
+    get:
+      operationId: googleOAuthStart
+      summary: Start Google OAuth flow
+      tags: [OAuth]
+      description: Returns the Google authorization URL for the frontend to redirect to
+      responses:
+        '200':
+          description: Authorization URL
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  authorization_url:
+                    type: string
+                    format: uri
+
+  /api/auth/google/callback:
+    get:
+      operationId: googleOAuthCallback
+      summary: Google OAuth callback handler
+      tags: [OAuth]
+      parameters:
+        - in: query
+          name: code
+          required: true
+          schema:
+            type: string
+          description: Authorization code from Google
+        - in: query
+          name: state
+          required: false
+          schema:
+            type: string
+          description: CSRF protection state parameter
+      responses:
+        '302':
+          description: Redirect to frontend with auth success
+          headers:
+            Location:
+              description: Frontend redirect URL
+              schema:
+                type: string
+            Set-Cookie:
+              description: httpOnly refresh token cookie
+              schema:
+                type: string
+        '400':
+          description: OAuth error (invalid code, denied permission)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/chat:
+    post:
+      operationId: chat
+      summary: Send a chat message (existing endpoint, updated auth)
+      tags: [Chat]
+      description: |
+        Accepts either JWT Bearer token or API key for backward compatibility.
+        JWT auth will be preferred; API key support is transitional.
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+      responses:
+        '200':
+          description: Chat response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+        '401':
+          description: Not authenticated
+        '429':
+          description: Rate limit exceeded
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
+  schemas:
+    RegisterRequest:
+      type: object
+      required: [email, password, name]
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 255
+          example: "user@example.com"
+        password:
+          type: string
+          minLength: 8
+          maxLength: 128
+          description: "Must contain at least one letter and one number"
+          example: "securePass123"
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          example: "John Doe"
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+        password:
+          type: string
+          example: "securePass123"
+
+    AuthResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+          description: JWT access token (15min expiry)
+        token_type:
+          type: string
+          enum: [bearer]
+        user:
+          $ref: '#/components/schemas/UserProfile'
+
+    RefreshResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+          description: New JWT access token
+        token_type:
+          type: string
+          enum: [bearer]
+
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        auth_methods:
+          type: array
+          items:
+            type: string
+            enum: [email, google]
+        created_at:
+          type: string
+          format: date-time
+
+    ChatRequest:
+      type: object
+      required: [message, session_id]
+      properties:
+        message:
+          type: string
+        session_id:
+          type: string
+
+    ChatResponse:
+      type: object
+      properties:
+        response:
+          type: string
+        sources:
+          type: array
+          items:
+            type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        detail:
+          type: string
+          example: "Invalid email or password"

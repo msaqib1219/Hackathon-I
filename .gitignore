@@ -46,6 +46,8 @@ yarn-error.log*
 .env.*.local
 backend/.env.secret
 backend/.env.local
+client_secret.json
+
 
 # Python virtual environments
 .venv/
