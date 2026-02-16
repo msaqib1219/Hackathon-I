@@ -148,7 +148,7 @@ Not all answers are equally reliable. A good agent communicates its confidence:
 | **High (90%+)** | Answer directly | "The capital of Pakistan is Islamabad." |
 | **Medium (60-90%)** | Answer with caveats | "Based on the available data, the project seems on track, but I'd recommend verifying the latest numbers." |
 | **Low (30-60%)** | Warn the user | "I'm not very confident about this. Here's my best guess, but please verify: ..." |
-| **Very low (<30%)** | Decline to answer | "I don't have enough information to answer this reliably. Could you provide more context?" |
+| **Very low (&lt;30%)** | Decline to answer | "I don't have enough information to answer this reliably. Could you provide more context?" |
 
 How can an agent estimate confidence?
 - **Source quality**: Is the answer from a verified document (high) or generated from memory (lower)?
