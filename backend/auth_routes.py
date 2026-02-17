@@ -26,6 +26,9 @@ auth_router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 IS_PRODUCTION = os.getenv("AUTH_DEV_MODE", "false").lower() != "true"
+# Cross-origin deployment (e.g. Vercel frontend + Railway backend) requires SameSite=None
+IS_CROSS_ORIGIN = os.getenv("CROSS_ORIGIN_COOKIES", "false").lower() == "true"
+COOKIE_SAMESITE = "none" if IS_CROSS_ORIGIN else "lax"
 
 
 def _set_refresh_cookie(response: Response, token: str):
@@ -34,8 +37,8 @@ def _set_refresh_cookie(response: Response, token: str):
         key="refresh_token",
         value=token,
         httponly=True,
-        secure=IS_PRODUCTION,
-        samesite="lax",
+        secure=IS_PRODUCTION or IS_CROSS_ORIGIN,
+        samesite=COOKIE_SAMESITE,
         max_age=60 * 60 * 24 * int(os.getenv("JWT_REFRESH_TOKEN_EXPIRE_DAYS", "7")),
         path="/api/auth",
     )
@@ -46,8 +49,8 @@ def _clear_refresh_cookie(response: Response):
     response.delete_cookie(
         key="refresh_token",
         httponly=True,
-        secure=IS_PRODUCTION,
-        samesite="lax",
+        secure=IS_PRODUCTION or IS_CROSS_ORIGIN,
+        samesite=COOKIE_SAMESITE,
         path="/api/auth",
     )
 
@@ -163,8 +166,8 @@ async def google_oauth_start(response: Response):
         key="oauth_state",
         value=state,
         httponly=True,
-        secure=IS_PRODUCTION,
-        samesite="lax",
+        secure=IS_PRODUCTION or IS_CROSS_ORIGIN,
+        samesite=COOKIE_SAMESITE,
         max_age=600,  # 10 minutes
         path="/api/auth",
     )
@@ -267,8 +270,8 @@ async def google_oauth_callback(
         key="refresh_token",
         value=refresh_token_str,
         httponly=True,
-        secure=IS_PRODUCTION,
-        samesite="lax",
+        secure=IS_PRODUCTION or IS_CROSS_ORIGIN,
+        samesite=COOKIE_SAMESITE,
         max_age=60 * 60 * 24 * int(os.getenv("JWT_REFRESH_TOKEN_EXPIRE_DAYS", "7")),
         path="/api/auth",
     )

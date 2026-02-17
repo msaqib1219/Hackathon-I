@@ -6,7 +6,7 @@ module.exports = async function createConfig() {
   return {
     title: 'Learning Agentic AI from Zero to Hero',
     tagline: 'The Art of the Agent',
-    url: 'https://your-docusaurus-test-site.com',
+    url: 'https://agenticaifromzerotohero.vercel.app',
     baseUrl: '/',
     onBrokenLinks: 'throw',
     favicon: 'img/favicon.ico',
