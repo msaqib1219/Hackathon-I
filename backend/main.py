@@ -21,16 +21,21 @@ load_dotenv(override=True)
 # Configure Gemini AFTER loading .env
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
-    raise ValueError("GEMINI_API_KEY environment variable not set")
-
-# Initialize the client with the new API
-client = genai.Client(api_key=GEMINI_API_KEY)
+    print("WARNING: GEMINI_API_KEY not set — chat endpoints will fail")
+    client = None
+else:
+    client = genai.Client(api_key=GEMINI_API_KEY)
 
 # Initialize clients
-qdrant_client = QdrantClient(
-    url=os.getenv("QDRANT_URL"),
-    api_key=os.getenv("QDRANT_API_KEY"),
-)
+QDRANT_URL = os.getenv("QDRANT_URL")
+if QDRANT_URL:
+    qdrant_client = QdrantClient(
+        url=QDRANT_URL,
+        api_key=os.getenv("QDRANT_API_KEY"),
+    )
+else:
+    print("WARNING: QDRANT_URL not set — chat endpoints will fail")
+    qdrant_client = None
 
 COLLECTION_NAME = "agentic_ai_book"
 
