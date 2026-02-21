@@ -1,4 +1,6 @@
 {
+  "framework": "docusaurus-2",
   "installCommand": "npm install --ignore-scripts",
-  "buildCommand": "npm run build"
+  "buildCommand": "npm run build",
+  "outputDirectory": "build"
 }
