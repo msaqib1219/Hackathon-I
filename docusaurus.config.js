@@ -6,7 +6,7 @@ module.exports = async function createConfig() {
   return {
     title: 'Learning Agentic AI from Zero to Hero',
     tagline: 'The Art of the Agent',
-    url: 'https://fanciful-maamoul-e415a8.netlify.app',
+    url: 'https://agenticaizerotohero.netlify.app',
     baseUrl: '/',
     onBrokenLinks: 'throw',
     favicon: 'img/favicon.ico',
