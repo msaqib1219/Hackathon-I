@@ -17,7 +17,7 @@ module.exports = async function createConfig() {
     // API key must be set via environment variable - never hardcode secrets
     customFields: {
       chatApiKey: process.env.CHAT_API_KEY || '',
-      chatApiUrl: process.env.CHAT_API_URL || 'http://localhost:8000',
+      chatApiUrl: process.env.CHAT_API_URL || '',
     },
 
     // Markdown configuration
@@ -32,7 +32,7 @@ module.exports = async function createConfig() {
       {
         href: 'https://cdn.jsdelivr.net/npm/katex@0.13.24/dist/katex.min.css',
         type: 'text/css',
-        integrity: 'sha384-odtC+0UGzzFL/6QkHlJt8K8fpk0+7MY2e9NC0xlupkac90s3TDBdrh9cI1q7F6L5',
+        integrity: 'sha384-odtC+0UGzzFL/6PNoE8rX/SPcQDXBJ+uRepguP4QkPCm2LBxH3FA3y+fKSiJ+AmM',
         crossorigin: 'anonymous',
       },
     ],

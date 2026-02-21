@@ -4,3 +4,10 @@
 
 [build.environment]
   NODE_VERSION = "20"
+
+# Proxy API calls to Railway backend (keeps cookies first-party)
+[[redirects]]
+  from = "/api/*"
+  to = "https://hackathon-i-production.up.railway.app/api/:splat"
+  status = 200
+  force = true

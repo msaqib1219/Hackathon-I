@@ -3,7 +3,7 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 
 const AuthContext = createContext(null);
 
-const API_URL_FALLBACK = 'http://localhost:8000';
+const API_URL_FALLBACK = '';
 
 export function AuthProvider({ children }) {
   const { siteConfig } = useDocusaurusContext();
