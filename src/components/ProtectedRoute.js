@@ -38,6 +38,16 @@ export default function ProtectedRoute({ children }) {
     );
   }
 
+  // Track if we were previously authenticated to detect logout
+  const wasAuthenticated = React.useRef(false);
+  if (isAuthenticated) wasAuthenticated.current = true;
+
+  if (!isAuthenticated && wasAuthenticated.current) {
+    // User just logged out — redirect to homepage
+    window.location.href = '/';
+    return null;
+  }
+
   if (!isAuthenticated) {
     return (
       <>
