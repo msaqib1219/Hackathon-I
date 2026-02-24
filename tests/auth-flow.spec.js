@@ -9,7 +9,7 @@ const PASSWORD = process.env.TEST_USER_PASSWORD;
  */
 async function loginViaGate(page, email, password) {
   await page.goto("/docs/intro");
-  await page.locator("button", { hasText: "Sign In" }).first().click();
+  await page.locator("[data-testid='navbar-signin-btn']").click();
   await expect(page.locator("h2", { hasText: "Welcome Back" })).toBeVisible();
   await page.locator("input#email").fill(email);
   await page.locator("input#password").fill(password);

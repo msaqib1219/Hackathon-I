@@ -32,6 +32,7 @@ export default function SignInButton() {
       <button
         onClick={() => setIsModalOpen(true)}
         className={styles.signInButton}
+        data-testid="navbar-signin-btn"
       >
         Sign In
       </button>
