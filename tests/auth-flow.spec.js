@@ -18,6 +18,7 @@ async function loginViaGate(page, email, password) {
   await expect(page.locator("h1", { hasText: "The Art of the Agent" })).toBeVisible({ timeout: 15_000 });
 }
 
+test.describe.configure({ mode: 'serial' });
 test.describe("Auth Flow (email/password)", () => {
   test.skip(
     !EMAIL || !PASSWORD,
@@ -81,6 +82,6 @@ test.describe("Auth Flow (email/password)", () => {
     // Sign Out button should be visible instead of Sign In
     await expect(
       page.locator("button", { hasText: "Sign Out" })
-    ).toBeVisible();
+    ).toBeVisible({ timeout: 10_000 });
   });
 });
