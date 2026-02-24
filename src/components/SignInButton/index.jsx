@@ -9,7 +9,7 @@ export default function SignInButton() {
 
   const handleSignOut = async () => {
     await logout();
-    window.location.href = '/';
+    window.location.replace('/');
   };
 
   if (isLoading) {

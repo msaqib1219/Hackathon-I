@@ -9,11 +9,13 @@ const PASSWORD = process.env.TEST_USER_PASSWORD;
  */
 async function loginViaGate(page, email, password) {
   await page.goto("/docs/intro");
-  await page.locator("[data-testid='navbar-signin-btn']").click();
-  await expect(page.locator("h2", { hasText: "Welcome Back" })).toBeVisible();
+  // AuthModal opens automatically for unauthenticated users on /docs pages
+  await expect(page.locator("h2", { hasText: "Welcome Back" })).toBeVisible({ timeout: 10_000 });
   await page.locator("input#email").fill(email);
   await page.locator("input#password").fill(password);
   await page.locator('button[type="submit"]', { hasText: "Sign In" }).click();
+  // Wait for the modal's success redirect (setTimeout 1000ms in AuthModal)
+  await expect(page.locator("h1", { hasText: "The Art of the Agent" })).toBeVisible({ timeout: 15_000 });
 }
 
 test.describe("Auth Flow (email/password)", () => {
@@ -63,11 +65,11 @@ test.describe("Auth Flow (email/password)", () => {
     // Click Sign Out in the navbar
     await page.locator("button", { hasText: "Sign Out" }).click();
 
-    // Should redirect to homepage
-    await expect(page).toHaveURL(/\/$/, { timeout: 10_000 });
+    // Should redirect to homepage (not a /docs/* path)
+    await expect(page).toHaveURL(/^https?:\/\/[^/]+(\/)?$/, { timeout: 10_000 });
     await expect(
       page.locator("h1", { hasText: "Master the Future of Autonomy" })
-    ).toBeVisible();
+    ).toBeVisible({ timeout: 10_000 });
   });
 
   test("navbar shows user info when authenticated", async ({ page }) => {
