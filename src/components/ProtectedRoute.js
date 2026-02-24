@@ -45,9 +45,9 @@ export default function ProtectedRoute({ children }) {
     );
   }
 
-  // If user was authenticated and just logged out, redirect to homepage
+  // If user was authenticated and just logged out, do a hard redirect to homepage
   if (!isAuthenticated && wasAuthenticated.current) {
-    window.location.href = '/';
+    window.location.assign(window.location.origin + '/');
     return null;
   }
 
