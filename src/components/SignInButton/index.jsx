@@ -9,11 +9,6 @@ export default function SignInButton() {
 
   const handleSignOut = async () => {
     await logout();
-    // ProtectedRoute will redirect to / if we're on a protected page,
-    // otherwise navigate home explicitly
-    if (!window.location.pathname.startsWith('/docs')) {
-      window.location.href = '/';
-    }
   };
 
   if (isLoading) {

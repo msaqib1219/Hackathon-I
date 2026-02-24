@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@site/src/context/AuthContext';
 import AuthModal from './AuthModal';
 
@@ -11,6 +11,13 @@ function isProtectedPath(pathname) {
 export default function ProtectedRoute({ children }) {
   const { isAuthenticated, isLoading } = useAuth();
   const [showModal, setShowModal] = useState(true);
+  const wasAuthenticated = useRef(false);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      wasAuthenticated.current = true;
+    }
+  }, [isAuthenticated]);
 
   // Only gate on client side
   if (typeof window === 'undefined') {
@@ -38,12 +45,8 @@ export default function ProtectedRoute({ children }) {
     );
   }
 
-  // Track if we were previously authenticated to detect logout
-  const wasAuthenticated = React.useRef(false);
-  if (isAuthenticated) wasAuthenticated.current = true;
-
+  // If user was authenticated and just logged out, redirect to homepage
   if (!isAuthenticated && wasAuthenticated.current) {
-    // User just logged out — redirect to homepage
     window.location.href = '/';
     return null;
   }
