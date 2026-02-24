@@ -63,10 +63,11 @@ test.describe("Auth Flow (email/password)", () => {
       page.locator("h1", { hasText: "The Art of the Agent" })
     ).toBeVisible({ timeout: 15_000 });
 
-    // Click Sign Out in the navbar
+    // Click Sign Out in the navbar — navigates to /goodbye page
     await page.locator("button", { hasText: "Sign Out" }).click();
+    await expect(page).toHaveURL(/\/goodbye/, { timeout: 10_000 });
 
-    // Should redirect to homepage (not a /docs/* path)
+    // Goodbye page auto-redirects to homepage after 4s
     await expect(page).toHaveURL(/^https?:\/\/[^/]+(\/)?$/, { timeout: 10_000 });
     await expect(
       page.locator("h1", { hasText: "Master the Future of Autonomy" })

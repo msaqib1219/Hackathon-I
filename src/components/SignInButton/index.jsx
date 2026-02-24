@@ -7,8 +7,8 @@ export default function SignInButton() {
   const { isAuthenticated, isLoading, user, logout } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleSignOut = async () => {
-    await logout();
+  const handleSignOut = () => {
+    window.location.assign('/goodbye');
   };
 
   if (isLoading) {
