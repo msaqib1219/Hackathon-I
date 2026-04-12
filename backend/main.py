@@ -13,7 +13,6 @@ from contextlib import asynccontextmanager
 
 from database import init_db, add_message, get_history
 from auth import verify_api_key, verify_auth, check_rate_limit, rate_limiter, get_client_identifier
-from auth_routes import auth_router
 
 # Load environment variables FIRST (override=True to override system env vars)
 load_dotenv(override=True)
@@ -51,8 +50,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-# CORS configuration - restrict origins for security
-# In production, replace with your actual frontend domain
+# CORS configuration
 ALLOWED_ORIGINS = [o.strip().rstrip("/") for o in os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(",")]
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000").rstrip("/")
 if FRONTEND_URL not in ALLOWED_ORIGINS:
@@ -67,9 +65,6 @@ app.add_middleware(
     allow_headers=["Content-Type", "X-API-Key", "Authorization"],
 )
 
-# Register auth routes
-app.include_router(auth_router)
-
 class ChatRequest(BaseModel):
     message: str
     session_id: str
@@ -77,6 +72,14 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     response: str
     sources: List[str]
+
+class ProfileUpdate(BaseModel):
+    experienceLevel: Optional[str] = None
+    programmingLanguages: Optional[str] = None
+    aiMlFamiliarity: Optional[str] = None
+    hardwareExperience: Optional[str] = None
+    learningGoals: Optional[str] = None
+    questionnaireCompleted: Optional[bool] = None
 
 def get_embedding(text: str) -> List[float]:
     """Generate embedding using Gemini"""
@@ -89,7 +92,6 @@ def get_embedding(text: str) -> List[float]:
 
 def extract_json_from_response(text: str) -> str:
     """Extract JSON from text response if present"""
-    # Remove markdown code blocks
     text = re.sub(r'```json\n?', '', text)
     text = re.sub(r'```\n?', '', text)
     return text.strip()
@@ -115,6 +117,68 @@ async def rate_limit_status(request: Request, api_key: str = Depends(verify_api_
     }
 
 
+@app.get("/api/user/profile")
+async def get_profile(auth_payload: dict = Depends(verify_auth)):
+    """Get current user's profile including questionnaire data."""
+    return {
+        "id": auth_payload.get("sub"),
+        "email": auth_payload.get("email"),
+        "name": auth_payload.get("name"),
+        "experienceLevel": auth_payload.get("experienceLevel", ""),
+        "programmingLanguages": auth_payload.get("programmingLanguages", ""),
+        "aiMlFamiliarity": auth_payload.get("aiMlFamiliarity", ""),
+        "hardwareExperience": auth_payload.get("hardwareExperience", ""),
+        "learningGoals": auth_payload.get("learningGoals", ""),
+        "questionnaireCompleted": auth_payload.get("questionnaireCompleted", False),
+    }
+
+
+@app.post("/api/user/profile")
+async def update_profile(
+    profile: ProfileUpdate,
+    auth_payload: dict = Depends(verify_auth),
+):
+    """Update user questionnaire fields in better-auth user table."""
+    import asyncpg
+
+    user_id = auth_payload.get("sub")
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    updates = {}
+    if profile.experienceLevel is not None:
+        updates['"experienceLevel"'] = profile.experienceLevel
+    if profile.programmingLanguages is not None:
+        updates['"programmingLanguages"'] = profile.programmingLanguages
+    if profile.aiMlFamiliarity is not None:
+        updates['"aiMlFamiliarity"'] = profile.aiMlFamiliarity
+    if profile.hardwareExperience is not None:
+        updates['"hardwareExperience"'] = profile.hardwareExperience
+    if profile.learningGoals is not None:
+        updates['"learningGoals"'] = profile.learningGoals
+    if profile.questionnaireCompleted is not None:
+        updates['"questionnaireCompleted"'] = profile.questionnaireCompleted
+
+    if not updates:
+        return {"message": "No fields to update"}
+
+    database_url = os.getenv("DATABASE_URL")
+    conn = await asyncpg.connect(database_url)
+    try:
+        set_clauses = []
+        values = []
+        for i, (col, val) in enumerate(updates.items(), 1):
+            set_clauses.append(f"{col} = ${i}")
+            values.append(val)
+        values.append(user_id)
+        query = f'UPDATE "user" SET {", ".join(set_clauses)} WHERE id = ${len(values)}'
+        await conn.execute(query, *values)
+    finally:
+        await conn.close()
+
+    return {"message": "Profile updated"}
+
+
 @app.post("/api/chat", response_model=ChatResponse)
 async def chat(
     request: Request,
@@ -136,7 +200,7 @@ async def chat(
         context_text = "\n\n".join([hit.payload["text"] for hit in search_result])
         sources = list(set([hit.payload["source"] for hit in search_result]))
 
-        # 2. Construct prompt
+        # 2. Build personalized system prompt
         system_prompt = f"""You are a helpful assistant for the Agentic AI Book.
         Use the following context to answer the user's question.
         If the answer is not in the context, say you don't know.
@@ -145,9 +209,24 @@ async def chat(
         {context_text}
         """
 
+        # Personalize based on user questionnaire
+        exp_level = auth_payload.get("experienceLevel", "")
+        prog_langs = auth_payload.get("programmingLanguages", "")
+        ai_familiarity = auth_payload.get("aiMlFamiliarity", "")
+        if exp_level or prog_langs or ai_familiarity:
+            personalization = "\n        User background:"
+            if exp_level:
+                personalization += f"\n        - Experience level: {exp_level}"
+            if prog_langs:
+                personalization += f"\n        - Programming languages: {prog_langs}"
+            if ai_familiarity:
+                personalization += f"\n        - AI/ML familiarity: {ai_familiarity}"
+            personalization += "\n        Adjust your explanations accordingly."
+            system_prompt += personalization
+
         user_message = chat_request.message
 
-        # 3. Call LLM using new google.genai API
+        # 3. Call LLM
         try:
             response = client.models.generate_content(
                 model="gemini-2.5-flash",
@@ -179,7 +258,6 @@ async def chat(
             response_text = response.text
 
         except Exception as e:
-            # Log full error server-side, return generic message to client
             print(f"Gemini API error: {e}")
             raise HTTPException(status_code=500, detail="An error occurred processing your request")
 

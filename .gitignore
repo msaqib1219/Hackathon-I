@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+auth-server/node_modules
 /.pnp
 .pnp.js
 .yarn/install-state.gz
@@ -29,6 +30,7 @@ backend/.venv/
 .env.test.local
 .env.production.local
 backend/.env
+auth-server/.env
 
 # misc
 .DS_Store
@@ -58,3 +60,7 @@ venv/
 # Python cache
 *.pyc
 __pycache__/
+
+# Files for myself only
+imp_cmd_info.md 
+

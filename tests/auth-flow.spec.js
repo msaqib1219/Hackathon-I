@@ -6,6 +6,8 @@ const PASSWORD = process.env.TEST_USER_PASSWORD;
 
 /**
  * Helper: log in via the AuthModal on a /docs page gate.
+ * better-auth uses cookie-based sessions, so after login
+ * the session cookie is set automatically.
  */
 async function loginViaGate(page, email, password) {
   await page.goto("/docs/intro");
@@ -19,7 +21,7 @@ async function loginViaGate(page, email, password) {
 }
 
 test.describe.configure({ mode: 'serial' });
-test.describe("Auth Flow (email/password)", () => {
+test.describe("Auth Flow (email/password via better-auth)", () => {
   test.skip(
     !EMAIL || !PASSWORD,
     "TEST_USER_EMAIL and TEST_USER_PASSWORD env vars required"
@@ -30,24 +32,22 @@ test.describe("Auth Flow (email/password)", () => {
   }) => {
     await loginViaGate(page, EMAIL, PASSWORD);
 
-    // After successful login, the docs content should appear
     await expect(page).toHaveURL(/\/docs\/intro/, { timeout: 15_000 });
     await expect(
       page.locator("h2", { hasText: "Sign in required" })
     ).toBeHidden();
-    // The doc page title should be visible
     await expect(
       page.locator("h1", { hasText: "The Art of the Agent" })
     ).toBeVisible({ timeout: 10_000 });
   });
 
-  test("session persists on page reload", async ({ page }) => {
+  test("session persists on page reload (cookie-based)", async ({ page }) => {
     await loginViaGate(page, EMAIL, PASSWORD);
     await expect(
       page.locator("h1", { hasText: "The Art of the Agent" })
     ).toBeVisible({ timeout: 15_000 });
 
-    // Reload and verify still authenticated
+    // Reload and verify still authenticated via session cookie
     await page.reload();
     await expect(
       page.locator("h2", { hasText: "Sign in required" })
@@ -80,7 +80,6 @@ test.describe("Auth Flow (email/password)", () => {
       page.locator("h1", { hasText: "The Art of the Agent" })
     ).toBeVisible({ timeout: 15_000 });
 
-    // Sign Out button should be visible instead of Sign In
     await expect(
       page.locator("button", { hasText: "Sign Out" })
     ).toBeVisible({ timeout: 10_000 });

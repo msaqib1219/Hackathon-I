@@ -15,7 +15,7 @@ function generateSessionId() {
 }
 
 export default function Chatbot() {
-  const { isAuthenticated, isLoading: authLoading, fetchWithAuth, apiUrl } = useAuth();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     { role: 'bot', content: 'Hi! I can answer questions about the Agentic AI Book. Ask me anything!' }
@@ -54,17 +54,18 @@ export default function Chatbot() {
     setIsLoading(true);
 
     try {
-      const response = await fetchWithAuth(`${apiUrl}/api/chat`, {
+      const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           message: userMessage,
           session_id: sessionId,
         }),
       });
 
-      if (!response || !response.ok) {
-        if (response?.status === 429) {
+      if (!response.ok) {
+        if (response.status === 429) {
           throw new Error('Rate limit exceeded. Please wait a moment before trying again.');
         }
         throw new Error('Failed to get a response');
@@ -88,10 +89,8 @@ export default function Chatbot() {
     }
   };
 
-  // Don't show chatbot while auth is loading
   if (authLoading) return null;
 
-  // Show sign-in prompt if not authenticated
   if (!isAuthenticated) {
     return (
       <div className="chatbot-container">

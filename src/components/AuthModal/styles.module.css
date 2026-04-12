@@ -213,6 +213,62 @@
   text-decoration: underline;
 }
 
+.textarea {
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 8px;
+  font-size: 1rem;
+  background: var(--ifm-background-surface-color);
+  color: var(--ifm-font-color-base);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: var(--ifm-color-primary);
+  box-shadow: 0 0 0 3px rgba(37, 194, 160, 0.15);
+}
+
+.checkboxGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  color: var(--ifm-font-color-base);
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.checkboxLabel:hover {
+  background: var(--ifm-color-emphasis-100);
+}
+
+.skipButton {
+  background: none;
+  border: none;
+  color: var(--ifm-color-emphasis-500);
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  text-align: center;
+}
+
+.skipButton:hover {
+  color: var(--ifm-color-emphasis-700);
+  text-decoration: underline;
+}
+
 @media (max-width: 480px) {
   .modal {
     padding: 1.5rem;

@@ -2,19 +2,30 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@site/src/context/AuthContext';
 import styles from './styles.module.css';
 
+const PROGRAMMING_LANGUAGES = [
+  'Python', 'JavaScript', 'TypeScript', 'C++', 'Rust', 'Java', 'Go', 'Other',
+];
+
 export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }) {
-  const { login, register, googleLogin } = useAuth();
+  const { login, register, googleLogin, updateProfile } = useAuth();
   const [mode, setMode] = useState(initialMode);
+  const [step, setStep] = useState('auth'); // 'auth' | 'questionnaire'
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     name: '',
   });
+  const [questionnaire, setQuestionnaire] = useState({
+    experienceLevel: 'beginner',
+    programmingLanguages: [],
+    aiMlFamiliarity: 'none',
+    hardwareExperience: '',
+    learningGoals: '',
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // Reset mode when initialMode prop changes
   useEffect(() => {
     setMode(initialMode);
   }, [initialMode]);
@@ -24,6 +35,19 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }) {
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setError('');
+  };
+
+  const handleQuestionnaireChange = (e) => {
+    setQuestionnaire({ ...questionnaire, [e.target.name]: e.target.value });
+  };
+
+  const handleLanguageToggle = (lang) => {
+    setQuestionnaire((prev) => {
+      const langs = prev.programmingLanguages.includes(lang)
+        ? prev.programmingLanguages.filter((l) => l !== lang)
+        : [...prev.programmingLanguages, lang];
+      return { ...prev, programmingLanguages: langs };
+    });
   };
 
   const validateForm = () => {
@@ -72,17 +96,49 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }) {
         }, 1000);
       } else {
         await register(formData.name, formData.email, formData.password);
-        setSuccess('Account created! Redirecting...');
+        setSuccess('Account created!');
+        // Show questionnaire after signup
         setTimeout(() => {
-          onClose();
-          window.location.href = '/docs/intro';
-        }, 1000);
+          setStep('questionnaire');
+          setSuccess('');
+        }, 500);
       }
     } catch (err) {
       setError(err.message || 'An error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleQuestionnaireSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
+
+    try {
+      await updateProfile({
+        experienceLevel: questionnaire.experienceLevel,
+        programmingLanguages: questionnaire.programmingLanguages.join(','),
+        aiMlFamiliarity: questionnaire.aiMlFamiliarity,
+        hardwareExperience: questionnaire.hardwareExperience,
+        learningGoals: questionnaire.learningGoals,
+        questionnaireCompleted: true,
+      });
+      setSuccess('Profile saved! Redirecting...');
+      setTimeout(() => {
+        onClose();
+        window.location.href = '/docs/intro';
+      }, 1000);
+    } catch (err) {
+      setError(err.message || 'Failed to save profile.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const skipQuestionnaire = () => {
+    onClose();
+    window.location.href = '/docs/intro';
   };
 
   const handleGoogleLogin = async () => {
@@ -99,6 +155,111 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }) {
     setError('');
     setSuccess('');
   };
+
+  if (step === 'questionnaire') {
+    return (
+      <div className={styles.overlay} onClick={onClose}>
+        <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+          <div className={styles.header}>
+            <h2 className={styles.title}>Tell Us About Yourself</h2>
+            <p className={styles.subtitle}>
+              Help us personalize your learning experience
+            </p>
+          </div>
+
+          <form onSubmit={handleQuestionnaireSubmit} className={styles.form}>
+            <div className={styles.inputGroup}>
+              <label className={styles.label}>Experience Level</label>
+              <select
+                name="experienceLevel"
+                value={questionnaire.experienceLevel}
+                onChange={handleQuestionnaireChange}
+                className={styles.input}
+              >
+                <option value="beginner">Beginner</option>
+                <option value="intermediate">Intermediate</option>
+                <option value="advanced">Advanced</option>
+              </select>
+            </div>
+
+            <div className={styles.inputGroup}>
+              <label className={styles.label}>Programming Languages</label>
+              <div className={styles.checkboxGroup}>
+                {PROGRAMMING_LANGUAGES.map((lang) => (
+                  <label key={lang} className={styles.checkboxLabel}>
+                    <input
+                      type="checkbox"
+                      checked={questionnaire.programmingLanguages.includes(lang)}
+                      onChange={() => handleLanguageToggle(lang)}
+                    />
+                    {lang}
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div className={styles.inputGroup}>
+              <label className={styles.label}>AI/ML Familiarity</label>
+              <select
+                name="aiMlFamiliarity"
+                value={questionnaire.aiMlFamiliarity}
+                onChange={handleQuestionnaireChange}
+                className={styles.input}
+              >
+                <option value="none">None</option>
+                <option value="beginner">Beginner</option>
+                <option value="intermediate">Intermediate</option>
+                <option value="advanced">Advanced</option>
+              </select>
+            </div>
+
+            <div className={styles.inputGroup}>
+              <label className={styles.label}>Hardware Experience</label>
+              <textarea
+                name="hardwareExperience"
+                value={questionnaire.hardwareExperience}
+                onChange={handleQuestionnaireChange}
+                className={styles.textarea}
+                placeholder="e.g., Arduino, Raspberry Pi, NVIDIA Jetson..."
+                rows={2}
+              />
+            </div>
+
+            <div className={styles.inputGroup}>
+              <label className={styles.label}>Learning Goals</label>
+              <textarea
+                name="learningGoals"
+                value={questionnaire.learningGoals}
+                onChange={handleQuestionnaireChange}
+                className={styles.textarea}
+                placeholder="What do you hope to learn from this course?"
+                rows={2}
+              />
+            </div>
+
+            {error && <p className={styles.error}>{error}</p>}
+            {success && <p className={styles.success}>{success}</p>}
+
+            <button
+              type="submit"
+              className={styles.submitButton}
+              disabled={isLoading}
+            >
+              {isLoading ? 'Saving...' : 'Save & Continue'}
+            </button>
+
+            <button
+              type="button"
+              onClick={skipQuestionnaire}
+              className={styles.skipButton}
+            >
+              Skip for now
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.overlay} onClick={onClose}>
