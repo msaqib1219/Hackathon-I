@@ -20,8 +20,9 @@ export function AuthProvider({ children }) {
       if (data?.user) {
         setUser(data.user);
       }
-    } catch {
-      // No valid session
+    } catch (error) {
+      // No valid session or auth service not available
+      console.warn('Auth service unavailable:', error?.message);
     } finally {
       setIsLoading(false);
     }

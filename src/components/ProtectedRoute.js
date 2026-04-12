@@ -9,8 +9,17 @@ function isProtectedPath(pathname) {
 }
 
 export default function ProtectedRoute({ children }) {
-  const { isAuthenticated, isLoading } = useAuth();
   const [showModal, setShowModal] = useState(true);
+  let isAuthenticated = false;
+  let isLoading = false;
+
+  try {
+    const auth = useAuth();
+    isAuthenticated = auth.isAuthenticated;
+    isLoading = auth.isLoading;
+  } catch (e) {
+    console.warn('Auth context error:', e.message);
+  }
 
   // Only gate on client side
   if (typeof window === 'undefined') {
