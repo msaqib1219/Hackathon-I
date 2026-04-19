@@ -1,0 +1,55 @@
+# Render deployment configuration
+# Generated for Railway -> Render migration
+# Usage: Render automatically reads this file from root or backend/ directory
+
+services:
+  - type: web
+    name: agentic-ai-backend
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    healthCheckInterval: 30
+
+    envVars:
+      # Database (REQUIRED - set in Render dashboard)
+      - key: DATABASE_URL
+        fromDatabase:
+          name: agentic-ai-db
+          property: connectionString
+
+      # API Keys (REQUIRED - set in Render dashboard as secrets)
+      - key: GEMINI_API_KEY
+        sync: false
+
+      - key: QDRANT_URL
+        sync: false
+
+      - key: QDRANT_API_KEY
+        sync: false
+
+      - key: JWT_SECRET
+        sync: false
+
+      # Frontend Integration (update to your Netlify domain)
+      - key: FRONTEND_URL
+        value: https://your-site.netlify.app
+
+      - key: ALLOWED_ORIGINS
+        value: https://your-site.netlify.app,http://localhost:3000,http://127.0.0.1:3000
+
+# Database config
+databases:
+  - name: agentic-ai-db
+    databaseName: agentic_ai
+    plan: free
+    region: oregon  # Change to your preferred region
+
+# Autoscaling (free tier = disabled)
+# The free plan does not support autoscaling
+
+# Build settings
+build:
+  language: python
+  pythonVersion: 3.11  # Match your local Python version
