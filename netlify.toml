@@ -12,9 +12,9 @@
   status = 200
   force = true
 
-# Proxy API calls to Railway backend (keeps cookies first-party)
+# Proxy API calls to backend (keeps cookies first-party)
 [[redirects]]
   from = "/api/*"
-  to = "https://hackathon-i-production.up.railway.app/api/:splat"
+  to = "https://hypnotism-promotion-parting.ngrok-free.dev/api/:splat"
   status = 200
   force = true
